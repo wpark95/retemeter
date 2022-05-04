@@ -1,0 +1,42 @@
+{
+  "name": "retemeter",
+  "version": "1.0.0",
+  "description": "KakaoTalk Text Analytics",
+  "main": "index.js",
+  "scripts": {
+    "react:dev": "webpack --watch",
+    "server:dev": "nodemon ./server/server.js",
+    "seed": "node ./database/seed.js",
+    "start": "node ./server/server.js",
+    "build": "webpack --mode=production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wpark95/retemeter"
+  },
+  "author": "W Park",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wpark95/retemeter/issues"
+  },
+  "homepage": "https://github.com/wpark95/retemeter#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "busboy": "^1.6.0",
+    "d3": "^7.4.4",
+    "dotenv": "^16.0.0",
+    "eslint": "^8.14.0",
+    "express": "^4.18.1",
+    "nodemon": "^2.0.16",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.10",
+    "@babel/preset-env": "^7.17.10",
+    "@babel/preset-react": "^7.16.7",
+    "babel-loader": "^8.2.5",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
+  }
+}

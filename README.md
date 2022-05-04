@@ -1,5 +1,3 @@
-# RETEMETER
-
 ## Technologies
 > This application is created with :
 - **Node Package Manager**    v6.14.5
