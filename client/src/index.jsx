@@ -1,8 +1,11 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import App from './components/App.jsx';
 
-ReactDOM.render(
-	<App />, document.getElementById('main'),
-);
+const rootElement = document.getElementById('main');
+const root = createRoot(rootElement);
+
+root.render(
+	<App />
+)

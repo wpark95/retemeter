@@ -5,6 +5,7 @@ const busboy = require('busboy');
 const fs = require('fs');
 const readline = require('readline');
 const frequency = require('./analytics/frequency.js');
+const mecab = require('mecab-ya');
 
 // Device Type Checker
 const deviceKor = require('./device_type/korean.js');
@@ -32,7 +33,7 @@ app.get('*', (req, res) => {
 });
 
 app.post('/api/test', async (req, res, next) => {
-  let userLang, map = {};
+  let userLang, timeStampMap = {}, userMap = {}, messageMap = {};
   const bb = busboy({ 
     headers: req.headers, 
     limits: { 
@@ -60,7 +61,7 @@ app.post('/api/test', async (req, res, next) => {
     if (info.mimeType == 'text/plain') {
       const rl = readline.createInterface({ input: file });
       const writeStream = fs.createWriteStream(saveTo);
-      let words, deviceType, deviceModule, previousLine, lineCount = 1, lineReady = false;
+      let lineDataArr, deviceType, deviceModule, previousLine, lineCount = 1, lineReady = false;
       
       // Write CSV headers
       writeStream.write('Date,User,Message\n');
@@ -88,16 +89,19 @@ app.post('/api/test', async (req, res, next) => {
         }
 
         if (lineCount > 4) {
-          // Android or iPhone Module
+          // Android & iPhone Module
           lineReady = deviceModule.lineSanityChecker(userLang, line);
 
           if (!lineReady) {
             previousLine += (' ' + line);
           }
           if (lineReady) {
-            words = deviceModule.sanitizePrevLine(writeStream, previousLine);
+            lineDataArr = deviceModule.sanitizePrevLine(writeStream, previousLine);
+            if (lineDataArr) {
+              timeStampMap = frequency.mapTimeFrequency(timeStampMap, lineDataArr[0]);
+              userMap = frequency.mapFrequency(userMap, lineDataArr[1]);
+            }
             previousLine = line;
-
           }
 
           // Windows
@@ -108,22 +112,26 @@ app.post('/api/test', async (req, res, next) => {
       });
 
       // Write the last line to CSV
-      rl.on('close', () => {
+      rl.on('finish', () => {
         // Korean
         if (userLang == 'kor') {
-          deviceModule.sanitizePrevLine(writeStream, previousLine);
+          lineDataArr = deviceModule.sanitizePrevLine(writeStream, previousLine);
+          if (lineDataArr) {
+            timeStampMap = frequency.mapTimeFrequency(timeStampMap, lineDataArr[0]);
+            userMap = frequency.mapFrequency(userMap, lineDataArr[1]);
+          }
         }
       })
-  
     }
   });
+  
 
-  bb.on('close', () => {
-    res.writeHead(200, { 'Connection': 'close' });
-    res.end('Writing Complete');
+  bb.on('finish', () => {
+    console.log(userMap);
+
+    res.send([timeStampMap, userMap]);
   });
-  req.pipe(bb);
-  return;
+  return req.pipe(bb);
 });
 
 module.exports = app;

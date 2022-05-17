@@ -57,13 +57,7 @@ const sanitizePrevLine = (writeStream, previousLine) => {
 		let timeStamp = lineArr[0] + ' ' + lineArr[1] + ' ' + 
 										lineArr[2] + ' ' + lineArr[3] + ' ' + lineArr[4].replace(',', '');
 		writeStream.write(`"${timeStamp}","${username}","${message.replace(/"/g, '""')}"\n`);
-		
-		// const punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]/g;
-		// const spaceRE = /\s+/g;
-		// const words = message.replace(punctRE, ' ')
-		// 						         .replace(spaceRE, ' ')
-		// 										 .split(' ');
-		// return words;
+		return [timeStamp, username.splice, message];
 	}
 }
 

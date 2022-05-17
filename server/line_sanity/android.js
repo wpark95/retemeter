@@ -47,8 +47,9 @@ const sanitizePrevLine = (writeStream, previousLine) => {
 	}
 	if (username && message) {
 		let timeStamp = lineArr[0] + ' ' + lineArr[1] + ' ' + 
-				lineArr[2] + ' ' + lineArr[3] + ' ' + lineArr[4].replace(',', '');
+										lineArr[2] + ' ' + lineArr[3] + ' ' + lineArr[4].replace(',', '');
 		writeStream.write(`"${timeStamp}","${username}","${message.replace(/"/g, '""')}"\n`);
+		return [timeStamp, username, message];
 	}
 }
 
