@@ -5,7 +5,7 @@ const lineSanityChecker = (language, line) => {
 	}
 
 	// If the user language is Korean, check for sanity
-	if (language == 'kor') {
+	if (language == 'KOR') {
 		let lineArr = line.split(' ');
 
 		// If the line array's size is smaller than 5, return false

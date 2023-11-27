@@ -1,105 +1,106 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+// External dependencies
+import React, { useState } from "react";
+import axios from "axios";
 
-import TimeStampList from './TimeStampList';
-import UserList from './UserList';
+// Internal dependencies
+import TimeStampList from "./TimeStampList";
+import UserList from "./UserList";
+import languageOptions from "../common/internationalization/languageOptions";
 
 const App = () => {
-	const [language, setLanguage] = useState('kor');
-	const [submitLang, setSubmitLang] = useState('확인하기');
+	// App state
+	const [languageOption, setLanguageOption] = useState(languageOptions[0]);
 	const [inputFile, setInputFile] = useState(null);
-	const [displayResult, setDisplayResult] = useState(false);
-	// Data to display 
+	const [shouldDisplayResult, setShouldDisplayResult] = useState(false);
+
+	// Result data to display
 	const [timeStampList, setTimeStampList] = useState({});
 	const [userList, setUserList] = useState([]);
 
-	const languageOptions = [
-		{label: '한국어', value: 'kor', submit: '확인하기'},
-		{label: 'English', value: 'eng', submit: 'Submit'},
-	]
-
 	const onFileUpload = () => {
-		setDisplayResult(true);
+		setShouldDisplayResult(true);
 		const formData = new FormData();
-		formData.append('userLanguage', language);
-		formData.append('inputFile', inputFile);
-		axios.post('api/test', formData)
-		.then(res => {
-			setTimeStampList(res.data[0]);
-			setUserList(Object.keys(res.data[1]).map((d) => (
-				{name: d, value: res.data[1][d]}
-			)));
-		}).catch(err => console.log(err));
-	}
+		formData.append("userLanguage", languageOption.languageCode);
+		formData.append("inputFile", inputFile);
+		axios
+			.post("api/test", formData)
+			.then((res) => {
+				setTimeStampList(res.data[0]);
+				setUserList(
+					Object.keys(res.data[1]).map((d) => ({
+						name: d,
+						value: res.data[1][d],
+					}))
+				);
+			})
+			.catch((err) => console.log(err));
+	};
 
-	return (		
+	const logo = () => <div className="logo">🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘</div>;
+
+	const topNavigation = () => (
+		<div className="nav-bar">
+			<nav>
+				<a href="/home/">HOME</a> |<a href="/etc/">ETC</a>
+			</nav>
+			<select
+				value={languageOption.label}
+				onChange={(e) => {
+					setLanguageOption(
+						languageOptions.find((option) => option.label === e.target.value)
+					);
+				}}
+			>
+				{languageOptions.map((option) => (
+					<option key={option.languageCode} value={option.label}>
+						{option.label}
+					</option>
+				))}
+			</select>
+		</div>
+	);
+
+	const preChatUploadMainContent = () => (
+		<div className="file-upload">
+			<h3>{languageOption.chatUploadPrompt}</h3>
+			<input
+				type="file"
+				accept=".txt, .csv"
+				onChange={(e) => setInputFile(e.target.files[0])}
+			/>
+			<button onClick={onFileUpload}>{languageOption.submit}</button>
+		</div>
+	);
+
+	const postAnalysisMainContent = () => (
+		<div className="results">
+			<div>
+				<h3>{languageOption.result}</h3>
+				{timeStampList?.length > 0 ? (
+					<TimeStampList timeStampList={timeStampList} />
+				) : null}
+				{Object.keys(userList).length !== 0 ? (
+					<UserList data={userList} />
+				) : null}
+				<h3>{languageOption.retryPrompt}</h3>
+				<button>{languageOption.submit}</button>
+			</div>
+		</div>
+	);
+
+	return (
 		<div>
-			<div className='header'>
-				<div className='logo'>
-					🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘
-					<br></br>
-					R E T E M E T E R
-				</div>
-				<div className='nav-bar'>
-					Home 
-					ETC 
-					<select 
-						value={language} 
-						onChange={(e) => {
-							setLanguage(e.target.value);
-							setSubmitLang(e.target.submit);
-						}
-					}>
-						{languageOptions.map((lang) => (
-						<option key={lang} value={lang.value}>{lang.label}</option>
-						))}
-					</select>
-				</div>
-				<div className='main'>
-					{displayResult ? 
-						<div className='results'>
-							<div>
-								<h3>Results</h3>
-								{timeStampList.length > 0 ? <TimeStampList timeStampList={timeStampList} /> : null}
-						 		{Object.keys(userList).length !== 0 ? <UserList data={userList} /> : null}
-								{
-								language == 'kor' ? 
-									<h3>다른 대화도 분석해보시겠어요?</h3>
-								:
-								language == 'eng' ?
-									<h3>Would you like something to drink?</h3>
-								: 
-									null
-								}
-								<button>확인하기</button>
-							</div>
-						</div>
-					: 						
-						<div className='file-upload'>
-							{
-							language == 'kor' ?
-									<h3> 카카오톡 대화 텍스트 파일을 업로드 해주세요 </h3>
-								:
-							language == 'eng' ?
-									<h3> Please upload your exported KakaoTalk chat </h3>
-								:
-									null	
-							}
-							<input 
-								type='file'
-								accept='.txt, .csv'
-								onChange={(e) => setInputFile(e.target.files[0])} 
-							/>
-							<button onClick={onFileUpload}>
-								{/* TO DO: Fix submitLang */}
-								{submitLang}
-							</button>
-						</div>
-					}
+			<div className="header">
+				{logo()}
+				{topNavigation()}
+				<div className="main">
+					{shouldDisplayResult
+						? postAnalysisMainContent()
+						: preChatUploadMainContent()}
 				</div>
 			</div>
 		</div>
-  );
-}
+	);
+};
 
 export default App;
