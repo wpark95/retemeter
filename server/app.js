@@ -8,7 +8,8 @@ const frequency = require("./analytics/frequency.js");
 const mecab = require("mecab-ya");
 
 // Device Type Checker
-const deviceKor = require("./device_type/korean.js");
+const { getDeviceType } = require("./device_type/deviceTypeChecker");
+const { SUPPORTED_DEVICE_TYPES } = require("./device_type/common.js");
 
 // Line Sanity & Sanitze
 const androidModule = require("./line_sanity/android");
@@ -44,20 +45,19 @@ const convertTxtToCsv = (
 			lineCount++;
 		}
 
-		if (lineCount == 3) {
-			// Decide whether Windows, iPhone, or Android
-			// Then use the correct language's device type module
-			if (userLang == "KOR") {
-				deviceType = deviceKor.korDeviceType(line);
-				if (deviceType == "android") {
+		if (lineCount === 3) {
+      const deviceType = getDeviceType(userLang, line);
+      switch (deviceType) {
+				case SUPPORTED_DEVICE_TYPES.ANDROID:
 					deviceModule = androidModule;
-				}
-				if (deviceType == "iphone") {
+					break;
+
+				case SUPPORTED_DEVICE_TYPES.IPHONE:
 					deviceModule = iphoneModule;
-				}
-			}
-			if (userLang == "ENG") {
-				console.log("English version needs to be implemented");
+					break;
+
+				default:
+					break;
 			}
 		}
 
